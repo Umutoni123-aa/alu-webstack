@@ -1,34 +1,14 @@
 #!/usr/bin/env bash
-# Display information about subdomains for DuckDNS
+# Display information about subdomains
 
 get_subdomain_info() {
-    local base_domain=$1
+    local domain=$1
     local subdomain=$2
-    local full_domain
-    
-    case $subdomain in
-        "www")
-            full_domain="${base_domain}-www.duckdns.org"
-            ;;
-        "lb-01")
-            full_domain="${base_domain}-lb01.duckdns.org"
-            ;;
-        "web-01")
-            full_domain="${base_domain}-web01.duckdns.org"
-            ;;
-        "web-02")
-            full_domain="${base_domain}-web02.duckdns.org"
-            ;;
-        *)
-            full_domain="${subdomain}.${base_domain}"
-            ;;
-    esac
-    
     local result
     local record_type
     local destination
     
-    result=$(dig "$full_domain" | grep -A1 'ANSWER SECTION:' | tail -1)
+    result=$(dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -1)
     record_type=$(echo "$result" | awk '{print $4}')
     destination=$(echo "$result" | awk '{print $5}')
     
@@ -37,14 +17,14 @@ get_subdomain_info() {
     fi
 }
 
-base_domain=$(echo "$1" | sed 's/.duckdns.org//')
+domain=$1
 subdomain=$2
 
 if [ -z "$subdomain" ]; then
-    get_subdomain_info "$base_domain" "www"
-    get_subdomain_info "$base_domain" "lb-01"
-    get_subdomain_info "$base_domain" "web-01"
-    get_subdomain_info "$base_domain" "web-02"
+    get_subdomain_info "$domain" "www"
+    get_subdomain_info "$domain" "lb-01"
+    get_subdomain_info "$domain" "web-01"
+    get_subdomain_info "$domain" "web-02"
 else
-    get_subdomain_info "$base_domain" "$subdomain"
+    get_subdomain_info "$domain" "$subdomain"
 fi
